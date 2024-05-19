@@ -1,0 +1,109 @@
+import User from "../../../database/models/user-sequelize-model";
+import IUser from "../../interfaces/user-interface";
+
+export default class UserModel {
+
+    getById = async (id: number): Promise<IUser | null> => {
+        try {
+            if (id <= 0) {
+                console.error('Id debe ser número positivo.');
+                return null
+            }
+
+            const user = await User.findByPk(id)
+
+            if (!user) {
+                console.error(`No hay registro de persona con ID=${id}`);
+                return null
+            }
+            return user
+        } catch (error) {
+            console.error(error);
+        }
+        return null
+    }
+
+    getByParam = async (param: string, value: string): Promise<IUser | null> => {
+        try {
+
+            if (!param || !value) {
+                console.error('Parámetros y su valor son requeridos.');
+                return null;
+            }
+
+            const allowedParams = ['id', 'email']; // Lista de campos permitidos
+            if (!allowedParams.includes(param)) {
+                console.error(`El parámetro ${param} no es válido.`);
+                return null;
+            }
+            
+            const user = await User.findOne({
+                where: {
+                    [param]: value
+                }
+            })
+
+            if (!user) {
+                console.error(`No hay registro de persona con ${param} =${value}`);
+                return null
+            }
+            return user
+        } catch (error) {
+            console.error(error);
+        }
+        return null
+    }
+
+    getAll = async (page: number): Promise<IUser[]> => {
+        try {
+            const limit = Number(process.env.LIMIT)
+            const offset = limit * page
+            const users = User.findAll({
+                attributes: ["id", "email", "password", "refreshToken"],
+                limit: limit,
+                offset: offset
+            })
+            return users
+        } catch (error) {
+            console.error(error);
+        }
+        return []
+    }
+
+
+
+    create = async (user: IUser): Promise<IUser | null> => {
+        try {
+            const newUser = await User.create({
+                email: user.email,
+                password: user.password,
+            })
+            return {
+                id: newUser.id,
+                email: newUser.email,
+                password: newUser.password,
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return null
+    }
+
+    save = async (user: IUser): Promise<IUser | null> => {
+        try {
+            const saveUser = await User.findByPk(user.id)
+
+            if (!saveUser) {
+                console.error('No se encontró el usuario en la base de datos.');
+                return null
+            }
+            saveUser.refreshToken = user.refreshToken!
+            await saveUser.save()
+            return saveUser
+        } catch (error) {
+            console.error(error);
+        }
+        return null
+    }
+
+}
