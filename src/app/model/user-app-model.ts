@@ -78,11 +78,7 @@ export default class UserModel {
                 email: user.email,
                 password: user.password,
             })
-            return {
-                id: newUser.id,
-                email: newUser.email,
-                password: newUser.password,
-            }
+            return newUser
         } catch (error) {
             console.error(error);
         }

@@ -27,6 +27,11 @@ export default class AuthController {
             const result = await this.userModel.create({
                 email: email,
                 password: hashedPwd,
+                photoUrl: "",
+                firstName: "",
+                lastName: "",
+                phoneNumber: "",
+                role: ""
             })
 
             if (result) {

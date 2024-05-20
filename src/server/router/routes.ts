@@ -2,7 +2,8 @@ import { Router } from "express";
 import UserController from "../../app/controller/user-app-controller";
 import AuthController from "../../app/controller/auth-app-controller";
 import AuthMiddleware from "../../middleware/auth-middleware";
-import ArticleController from "../../app/controller/articles-app-controller";
+import FileController from "../../app/controller/file-app-controller";
+import fileUpload from "express-fileupload";
 
 export default class router {
 
@@ -11,7 +12,7 @@ export default class router {
     constructor(
         private readonly userController: UserController,
         private readonly authController: AuthController,
-        private readonly articleController: ArticleController,
+        private readonly fileController: FileController,
         private readonly middleware: AuthMiddleware
     ) {
         this.router = Router()
@@ -23,6 +24,8 @@ export default class router {
         this.router.post('/login', this.authController.handleLogin)
         this.router.post('/register', this.authController.handleRegister)
 
+        this.router.post('/upload', fileUpload({createParentPath: true}), this.fileController.uploadFile)
+
         // Rutas Protegidas
         this.router.use(this.middleware.verifyJWT)
 
@@ -33,9 +36,6 @@ export default class router {
 
         this.router.route('/users/:id')
             .get(this.userController.getUserById)
-
-        // Ruta Articulos
-        this.router.get('/articles', this.articleController.fetchProducts)
     }
 
 }

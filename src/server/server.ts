@@ -1,30 +1,27 @@
 import express, { Application } from "express";
 import Router from "./router/routes";
 import Mysql from "../../database/mysql.db";
-// import AuthMiddleware from "../middleware/auth-middleware";
-
+import path from "path";
 export default class Server {
 
     #application: Application
-    // #middleware: AuthMiddleware
 
     constructor(
         private readonly router: Router
     ) {
         this.#application = express()
-        // this.#middleware = new AuthMiddleware()
         this.#config()
         this.#routes()
     }
 
     #config = (): void => {
-        this.#application.use(express.urlencoded({ extended: true }))
-        this.#application.use(express.json())
+        this.#application.use(express.urlencoded({ extended: true }));
+        this.#application.use(express.json());
     }
 
     #routes = (): void => {
+        this.#application.use('/', express.static(path.join(__dirname, '..', '..', '/img')));
         this.#application.use('/', this.router.router)
-        // this.#application.use(this.#middleware.verifyJWT)
         this.#application.use('*', this.router.router)
     }
 

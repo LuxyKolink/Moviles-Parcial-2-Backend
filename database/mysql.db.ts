@@ -1,5 +1,8 @@
 import { Sequelize } from "sequelize";
 import User from "./models/user-sequelize-model";
+import Role from "./models/role-sequelize";
+import FcmToken from "./models/fcm-token-sequelize";
+import Message from "./models/message-sequelize";
 
 export default class Mysql {
 
@@ -31,7 +34,8 @@ export default class Mysql {
     sync = async (): Promise<void> => {
         this.#associations()
         await this.client.sync({
-            force: false,
+            alter: false,
+            force: true,
             logging: false
         })
         console.log('Conexión a base de datos establecida.');
@@ -39,5 +43,10 @@ export default class Mysql {
 
     #associations = (): void => {
         User.initTable(this.client)
+        Role.initTable(this.client)
+        FcmToken.initTable(this.client)
+        Message.initTable(this.client)
+        User.association()
+        Role.association()
     }
 }
