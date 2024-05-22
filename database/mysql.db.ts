@@ -35,7 +35,7 @@ export default class Mysql {
         this.#associations()
         await this.client.sync({
             alter: false,
-            force: true,
+            force: false,
             logging: false
         })
         console.log('Conexión a base de datos establecida.');
@@ -47,6 +47,5 @@ export default class Mysql {
         FcmToken.initTable(this.client)
         Message.initTable(this.client)
         User.association()
-        Role.association()
     }
 }

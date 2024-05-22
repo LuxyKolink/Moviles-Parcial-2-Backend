@@ -4,18 +4,24 @@ import AuthController from "../../app/controller/auth-app-controller";
 import AuthMiddleware from "../../middleware/auth-middleware";
 import FileController from "../../app/controller/file-app-controller";
 import fileUpload from "express-fileupload";
+import FilesMiddleware from "../../middleware/files-middleware";
+import MessageController from "../../app/controller/message-app-controller";
 
 export default class router {
 
     router: Router
+    authMiddleware: AuthMiddleware
+    fileMiddleware: FilesMiddleware
 
     constructor(
         private readonly userController: UserController,
         private readonly authController: AuthController,
         private readonly fileController: FileController,
-        private readonly middleware: AuthMiddleware
+        private readonly messageController: MessageController
     ) {
         this.router = Router()
+        this.fileMiddleware = new FilesMiddleware()
+        this.authMiddleware = new AuthMiddleware()
         this.#routes()
     }
 
@@ -24,15 +30,21 @@ export default class router {
         this.router.post('/login', this.authController.handleLogin)
         this.router.post('/register', this.authController.handleRegister)
 
-        this.router.post('/upload', fileUpload({createParentPath: true}), this.fileController.uploadFile)
+        this.router.post('/send', this.messageController.sendMessage)
+
+        this.router.post(
+            '/upload', 
+            fileUpload({createParentPath: true}),
+            this.fileMiddleware.filesPayloadExist,
+            this.fileController.uploadFile
+        )
 
         // Rutas Protegidas
-        this.router.use(this.middleware.verifyJWT)
+        this.router.use(this.authMiddleware.verifyJWT)
 
         // Rutas Usuarios
         this.router.route('/users')
             .get(this.userController.getAllUsers)
-            .post(this.userController.createUser)
 
         this.router.route('/users/:id')
             .get(this.userController.getUserById)

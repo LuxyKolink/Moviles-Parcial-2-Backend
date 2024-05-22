@@ -1,29 +1,32 @@
-// // firebase.ts
-// import admin, { ServiceAccount } from 'firebase-admin';
-// import { FirebaseApp } from 'firebase-admin/app';
-// import serviceAccount from './path-to-your-firebase-adminsdk.json';
+import admin from 'firebase-admin';
+import { applicationDefault } from 'firebase-admin/app';
 
-// class FirebaseAdmin {
-//   private static instance: FirebaseAdmin;
-//   private app: FirebaseApp;
+export default class FirebaseAdmin {
+private static instance: FirebaseAdmin;
 
-//   private constructor() {
-//     this.app = admin.initializeApp({
-//       credential: admin.credential.cert(serviceAccount as ServiceAccount),
-//       databaseURL: 'https://your-database-name.firebaseio.com'
-//     });
-//   }
+  private constructor() {
+    admin.initializeApp({
+      credential: applicationDefault(),
+      projectId: 'parcial-3-parte2'
+    });
+  }
 
-//   public static getInstance(): FirebaseAdmin {
-//     if (!FirebaseAdmin.instance) {
-//       FirebaseAdmin.instance = new FirebaseAdmin();
-//     }
-//     return FirebaseAdmin.instance;
-//   }
+  static getInstance = (): FirebaseAdmin => {
+    if (!FirebaseAdmin.instance) {
+      FirebaseAdmin.instance = new FirebaseAdmin();
+    }
+    return FirebaseAdmin.instance;
+  }
+}
 
-//   public getApp(): FirebaseApp {
-//     return this.app;
-//   }
-// }
 
-// export default FirebaseAdmin;
+// var admin = require("firebase-admin");
+
+// var serviceAccount = require("path/to/serviceAccountKey.json");
+
+// $env:GOOGLE_APPLICATION_CREDENTIALS="C:\Projects\Parcial-final\Moviles-Parcial-2-Backend\config\parcial-3-parte2-firebase-adminsdk-g9tgu-f27ddf6f85.json"
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
+

@@ -9,7 +9,6 @@ export default class User extends Model {
     declare firstName: string
     declare lastName: string
     declare phoneNumber: string
-    declare fcmToken?: string
     declare refreshToken: string
 
     static initTable(sequelize: Sequelize) {
@@ -44,10 +43,6 @@ export default class User extends Model {
                 type: DataTypes.STRING,
                 allowNull: false
             },
-            fcmToken: {
-                type: DataTypes.STRING,
-                allowNull: true
-            },
             refreshToken: {
                 type: DataTypes.STRING,
                 allowNull: true
@@ -60,6 +55,14 @@ export default class User extends Model {
     }
 
     static association(){
-        User.belongsTo(Role)
+        User.belongsTo(Role, {
+            foreignKey: "roleId",
+            targetKey: "id",
+            as: "role"
+        });
+        Role.hasMany(User, {
+            foreignKey: "roleId",
+            sourceKey: "id"
+        });
     }
 }

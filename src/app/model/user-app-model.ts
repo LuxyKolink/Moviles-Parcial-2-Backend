@@ -1,3 +1,4 @@
+import Role from "../../../database/models/role-sequelize";
 import User from "../../../database/models/user-sequelize-model";
 import IUser from "../../interfaces/user-interface";
 
@@ -10,7 +11,13 @@ export default class UserModel {
                 return null
             }
 
-            const user = await User.findByPk(id)
+            const user = await User.findByPk(id, {
+                attributes: ["id", "email", "photoUrl", "firstName", "lastName", "phoneNumber"],
+                include: [{
+                    model: Role,
+                    as: 'role'
+                }]
+            })
 
             if (!user) {
                 console.error(`No hay registro de persona con ID=${id}`);
@@ -31,7 +38,7 @@ export default class UserModel {
                 return null;
             }
 
-            const allowedParams = ['id', 'email']; // Lista de campos permitidos
+            const allowedParams = ['id', 'email']; 
             if (!allowedParams.includes(param)) {
                 console.error(`El parámetro ${param} no es válido.`);
                 return null;
@@ -57,12 +64,22 @@ export default class UserModel {
     getAll = async (page: number): Promise<IUser[]> => {
         try {
             const limit = Number(process.env.LIMIT)
-            const offset = limit * page
-            const users = User.findAll({
-                attributes: ["id", "email", "password", "refreshToken"],
+            const offset = limit * (page - 1)
+            const users = await User.findAll({
+                attributes: [
+                    "id", 
+                    "email", 
+                    "photoUrl", 
+                    "firstName", 
+                    "lastName", 
+                    "phoneNumber", 
+                    "roleId"
+                ],
                 limit: limit,
                 offset: offset
             })
+            console.log(users);
+            
             return users
         } catch (error) {
             console.error(error);
@@ -77,6 +94,10 @@ export default class UserModel {
             const newUser = await User.create({
                 email: user.email,
                 password: user.password,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phoneNumber: user.phoneNumber,
+                roleId: user.roleId
             })
             return newUser
         } catch (error) {

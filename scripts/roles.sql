@@ -9,3 +9,5 @@ INSERT INTO roles (name) VALUES ('Contador');
 INSERT INTO roles (name) VALUES ('Subgerente');
 
 SELECT * FROM superchat.roles;
+
+SELECT * FROM superchat.users;

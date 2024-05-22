@@ -15,13 +15,13 @@ export default class UserController {
             } else {
                 const user = await this.userModel.getById(id)
                 if (user) {
-                    res.status(200).json({ "datos": user })
+                    res.status(200).json({ "data": user })
                 } else {
-                    res.status(204).json({ "mensaje": `No hay registro de usuario con ID=${id}` })
+                    res.status(204).json({ "message": `No hay registro de usuario con ID=${id}` })
                 }
             }
         } catch (error) {
-            res.status(500).json({ "mensaje": "Error interno del servidor" })
+            res.status(500).json({ "message": "Error interno del servidor" })
         }
     }
 
@@ -33,20 +33,6 @@ export default class UserController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ 'message': 'Error interno del servidor' })
-        }
-    }
-
-    createUser = async (req: Request, res: Response) => {
-        const userData = req.body
-        try {
-            const newUser = await this.userModel.create(userData)
-            if (newUser) {
-                res.status(201).json({ "mensaje": "Usuario creado con exito" })
-            } else {
-                res.status(400).json({ "mensaje": "Error en proceso de creación" })
-            }
-        } catch (error) {
-            res.status(500).json({ "mensaje": "error interno del servidor" })
         }
     }
 

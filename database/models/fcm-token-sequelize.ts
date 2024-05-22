@@ -19,7 +19,7 @@ export default class FcmToken extends Model {
             },
             userEmail: {
                 type: DataTypes.STRING,
-                field: 'user_email',
+                allowNull: false,
                 references: {
                     model: User,
                     key: 'email',

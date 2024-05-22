@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import Router from "./router/routes";
 import Mysql from "../../database/mysql.db";
 import path from "path";
+import FirebaseAdmin from "./firebase";
 export default class Server {
 
     #application: Application
@@ -27,6 +28,7 @@ export default class Server {
 
     start = async (): Promise<void> => {
         const bd = new Mysql();
+        FirebaseAdmin.getInstance();
         try {
             await bd.sync()
             const port = process.env.PORT

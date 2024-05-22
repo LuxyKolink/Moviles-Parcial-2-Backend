@@ -28,6 +28,7 @@ export default class Message extends Model {
             },
             senderEmail: {
                 type: DataTypes.STRING,
+                allowNull: false,
                 references: {
                     model: User,
                     key: 'email',
@@ -35,6 +36,7 @@ export default class Message extends Model {
             },
             recipientEmail: {
                 type: DataTypes.STRING,
+                allowNull: false,
                 references: {
                     model: User,
                     key: 'email',
@@ -51,7 +53,6 @@ export default class Message extends Model {
         }, {
             sequelize,
             tableName: "messages",
-            timestamps: false,
         });
     }
 }

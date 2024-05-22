@@ -1,6 +1,4 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
-import User from "./user-sequelize-model";
-
 export default class Role extends Model {
     declare id: number
     declare name: string
@@ -21,10 +19,6 @@ export default class Role extends Model {
             tableName: "roles",
             timestamps: false,
         })
-    }
-
-    static association(){
-        Role.hasMany(User)
     }
 
 }

@@ -10,10 +10,14 @@ export default class AuthController {
     ) { }
 
     handleRegister = async (req: Request, res: Response) => {
-        const { email, password } = req.body;
+        const { email, password, firstName, lastName, phoneNumber, role } = req.body;
 
         if (!email || !password) {
             res.status(400).json({ 'message': 'Username and password are required.' });
+        }
+
+        if (!firstName || !lastName || !phoneNumber || !role) {
+            res.status(400).json({ 'message': 'Missing properties.' });
         }
 
         const duplicate = await this.userModel.getByParam('email', email)
@@ -27,11 +31,10 @@ export default class AuthController {
             const result = await this.userModel.create({
                 email: email,
                 password: hashedPwd,
-                photoUrl: "",
-                firstName: "",
-                lastName: "",
-                phoneNumber: "",
-                role: ""
+                firstName: firstName,
+                lastName: lastName,
+                phoneNumber: phoneNumber,
+                roleId: role
             })
 
             if (result) {
@@ -65,7 +68,7 @@ export default class AuthController {
                             }
                         },
                         process.env.ACCESS_TOKEN_SECRET!,
-                        { expiresIn: '15s' }
+                        { expiresIn: '60s' }
                     );
                     const refreshToken = jwt.sign(
                         {
@@ -74,7 +77,6 @@ export default class AuthController {
                         process.env.REFRESH_TOKEN_SECRET!,
                         { expiresIn: '1d' }
                     );
-                    console.log(refreshToken);
 
                     foundUser.refreshToken = refreshToken;
                     const result = await this.userModel.save(foundUser);
