@@ -2,15 +2,17 @@ import { Request, Response } from "express";
 import UserModel from "../model/user-app-model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import FcmTokenModel from "../model/fcm-token-app-model";
 
 export default class AuthController {
 
     constructor(
-        private readonly userModel: UserModel
+        private readonly userModel: UserModel,
+        private readonly fcmTokenModel: FcmTokenModel
     ) { }
 
     handleRegister = async (req: Request, res: Response) => {
-        const { email, password, firstName, lastName, phoneNumber, role } = req.body;
+        const { email, password, firstName, lastName, phoneNumber, role, fcmToken } = req.body;
 
         if (!email || !password) {
             res.status(400).json({ 'message': 'Username and password are required.' });
@@ -23,6 +25,10 @@ export default class AuthController {
         const duplicate = await this.userModel.getByParam('email', email)
         if (duplicate) {
             res.status(409).json({ 'message': 'Email already exist.' });
+        }
+
+        if (!fcmToken) {
+            res.status(400).json({ 'message': 'Missing FCM token.' });
         }
 
         try {
@@ -38,6 +44,10 @@ export default class AuthController {
             })
 
             if (result) {
+                await this.fcmTokenModel.create({
+                    token: fcmToken,
+                    userEmail: email
+                });
                 res.status(201).json({ "mensaje": `Usuario ${email} creado con exito` })
             } else {
                 res.status(400).json({ "mensaje": "Error en proceso de creación" })
@@ -49,10 +59,10 @@ export default class AuthController {
 
     handleLogin = async (req: Request, res: Response) => {
         try {
-            const { email, password } = req.body;
+            const { email, password, fcmToken } = req.body;
 
             if (!email || !password) {
-                res.status(400).json({ 'message': 'Username and password are required.' });
+                res.status(400).json({ 'message': 'Username, password and FCM token are required.' });
             }
 
             const foundUser = await this.userModel.getByParam('email', email)
@@ -68,7 +78,7 @@ export default class AuthController {
                             }
                         },
                         process.env.ACCESS_TOKEN_SECRET!,
-                        { expiresIn: '60s' }
+                        { expiresIn: '1h' }
                     );
                     const refreshToken = jwt.sign(
                         {
@@ -82,6 +92,16 @@ export default class AuthController {
                     const result = await this.userModel.save(foundUser);
                     if (!result) {
                         res.status(400).json({ 'message': 'Refresh token creation failed.' });
+                    }
+
+                    const existingFcmToken = await this.fcmTokenModel.getByUserEmail(email);
+                    const tokenExists = existingFcmToken && existingFcmToken.some(token => token.token === fcmToken);
+                    
+                    if (!tokenExists) {
+                        await this.fcmTokenModel.create({
+                            token: fcmToken,
+                            userEmail: email
+                        });
                     }
 
                     res.status(201).json({ "token": accessToken })

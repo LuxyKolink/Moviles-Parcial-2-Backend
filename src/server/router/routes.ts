@@ -31,6 +31,7 @@ export default class router {
         this.router.post('/register', this.authController.handleRegister)
 
         this.router.post('/send', this.messageController.sendMessage)
+        this.router.post('/old/send', this.messageController.sendMessageOld)
 
         this.router.post(
             '/upload', 
